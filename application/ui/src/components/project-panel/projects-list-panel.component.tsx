@@ -1,6 +1,7 @@
 // Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
+import { API_BASE_URL } from '@/api';
 import type { Project } from '@/api/types';
 import {
     ActionButton,
@@ -17,7 +18,7 @@ import {
     Text,
     View,
 } from '@geti-ui/ui';
-import { Edit } from '@geti-ui/ui/icons';
+import { DownloadIcon, Edit } from '@geti-ui/ui/icons';
 import { useProjects } from 'hooks/api/project.hook';
 import { useProjectIdentifier } from 'hooks/use-project-identifier.hook';
 import { partition } from 'lodash-es';
@@ -30,6 +31,7 @@ import { paths } from '../../constants/paths';
 import { ActiveProjectBadge } from '../../features/project/list/active-project-badge/active-project-badge.component';
 import { ProjectActionsMenu } from '../../features/project/list/menu-actions/menu-actions.component';
 import { getProjectTypeTitle } from '../../features/project/list/util';
+import { downloadFile } from '../../shared/util';
 import { ProjectThumbnail } from './project-thumbnail/project-thumbnail.component';
 import { ProjectsList } from './projects-list.component';
 import { useProjectActionsDialogStates } from './use-project-actions-dialog-states';
@@ -219,6 +221,22 @@ export const ProjectsListPanel = () => {
 
                     <ButtonGroup UNSAFE_className={classes.buttonsGroup}>
                         <ManageProjects />
+                        <ActionButton
+                            isQuiet
+                            width={'100%'}
+                            UNSAFE_className={classes.manageProjectsButton}
+                            aria-label='Download diagnostics'
+                            onPress={() =>
+                                downloadFile(
+                                    `${API_BASE_URL}/api/system/diagnostics`,
+                                    'geti-diagnostics.zip',
+                                    'Diagnostics download started'
+                                )
+                            }
+                        >
+                            <DownloadIcon />
+                            <Text>Download diagnostics</Text>
+                        </ActionButton>
                     </ButtonGroup>
                 </Dialog>
             </DialogTrigger>

@@ -88,6 +88,11 @@ def get_job_dir(request: Request) -> Path:
     return request.app.state.settings.job_dir
 
 
+def get_log_dir(request: Request) -> Path:
+    """Provides the path to the root log directory. This path is defined in the app settings."""
+    return request.app.state.settings.log_dir
+
+
 def get_staged_datasets_dir(request: Request) -> Path:
     """Provides the path to the folder where the staged datasets are saved. This path is defined in the app settings."""
     return request.app.state.settings.staged_datasets_dir

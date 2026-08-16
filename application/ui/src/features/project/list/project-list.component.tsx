@@ -1,14 +1,15 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
 import { Suspense, useMemo, useState } from 'react';
 
-import { Content, Divider, Flex, Grid, Heading, Loading, Text, View } from '@geti-ui/ui';
+import { API_BASE_URL } from '@/api';
+import { ActionButton, Content, Divider, Flex, Grid, Heading, Loading, Text, View } from '@geti-ui/ui';
 import { useProjects } from 'hooks/api/project.hook';
 import { partition } from 'lodash-es';
 
 import { version } from '../../../../package.json';
-import { isNonEmptyArray, pluralize } from '../../../shared/util';
+import { downloadFile, isNonEmptyArray, pluralize } from '../../../shared/util';
 import { EmptyProjectList } from './empty-project-list/empty-project-list.component';
 import { NoMatchingProjects } from './filter-projects/no-matching-projects.component';
 import { ProjectFilters } from './filter-projects/project-filters.component';
@@ -128,6 +129,18 @@ const AppInfo = () => {
     return <Text UNSAFE_className={classes.version}>v{version}</Text>;
 };
 
+const DownloadDiagnosticsButton = () => {
+    const handleDownload = () => {
+        downloadFile(`${API_BASE_URL}/api/system/diagnostics`, 'geti-diagnostics.zip', 'Diagnostics download started');
+    };
+
+    return (
+        <ActionButton isQuiet aria-label='Download diagnostics' onPress={handleDownload}>
+            <Text>Download diagnostics</Text>
+        </ActionButton>
+    );
+};
+
 export const ProjectList = () => {
     return (
         <View UNSAFE_className={backgroundStyles.projectBackground} height={'100%'} position={'relative'}>
@@ -160,8 +173,11 @@ export const ProjectList = () => {
                     </View>
                 </Flex>
 
-                <View bottom={'size-150'} left={'size-150'} position={'absolute'}>
-                    <AppInfo />
+                <View bottom={'size-150'} left={'size-150'} right={'size-150'} position={'absolute'}>
+                    <Flex justifyContent={'space-between'} alignItems={'center'}>
+                        <AppInfo />
+                        <DownloadDiagnosticsButton />
+                    </Flex>
                 </View>
             </Content>
         </View>
