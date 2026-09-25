@@ -7,7 +7,7 @@ from the repo root with no extra hints beyond the prompt.
 Expected rubric per scenario:
 
 - **Activates the right skill** — the loaded `SKILL.md` matches the topic.
-- **Uses real paths and commands** — references `library/src/getitune/...`,
+- **Uses real paths and commands** — references `libraries/getitune/src/getitune/...`,
   `getitune ...`, `just ...` as documented.
 - **Follows the workflow checklist** — does not skip required checks or verify
   steps.
@@ -17,12 +17,12 @@ Expected rubric per scenario:
 
 ### Scenario 1: Set up and run targeted tests
 
-> "I changed a utility under `library/src/getitune`. Set up the environment for
+> "I changed a utility under `libraries/getitune/src/getitune`. Set up the environment for
 > CPU and run only the relevant unit tests."
 
 Expected behavior:
 
-- Creates the env with `just venv --device cpu` from `library/`.
+- Creates the env with `just venv --device cpu` from `libraries/getitune/`.
 - Runs `just test-unit -- <path or -k filter>` scoped to the change, not the full
   suite.
 - Runs `just lint` before declaring success.
@@ -33,7 +33,7 @@ Expected behavior:
 
 Expected behavior:
 
-- Places the test under `library/tests/unit/` mirroring the source tree.
+- Places the test under `libraries/getitune/tests/unit/` mirroring the source tree.
 - Reuses existing `conftest.py` fixtures instead of duplicating them.
 - Runs the single new test file with `just test-unit -- tests/unit/...`.
 

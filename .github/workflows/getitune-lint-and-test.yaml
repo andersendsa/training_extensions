@@ -15,7 +15,7 @@ on:
 permissions: {} # No permissions by default
 
 concurrency:
-  group: lib-lint-and-test-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: getitune-lint-and-test-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -47,11 +47,11 @@ jobs:
         with:
           files_yaml: |
             test:
-              - library/**
-              - .github/workflows/lib-lint-and-test.yaml
+              - libraries/getitune/**
+              - .github/workflows/getitune-lint-and-test.yaml
               - .github/actions/install-common-deps/**
               - '!**/*.md'
-              - '!library/docs/**'
+              - '!libraries/getitune/docs/**'
 
       # Separate filter so we only run the (slow, network-bound) benchmark
       # dataset preparation tests when those scripts are touched.
@@ -61,8 +61,8 @@ jobs:
         with:
           files_yaml: |
             test:
-              - library/scripts/benchmark_datasets/**
-              - library/tests/unit/scripts/**
+              - libraries/getitune/scripts/benchmark_datasets/**
+              - libraries/getitune/tests/unit/scripts/**
 
   code-quality-checks:
     runs-on: ubuntu-latest
@@ -78,17 +78,17 @@ jobs:
       - name: Install Python, uv and Just
         uses: ./.github/actions/install-common-deps
         with:
-          uv-version-file: library/pyproject.toml # Install the uv version specified in pyproject.toml
+          uv-version-file: libraries/getitune/pyproject.toml # Install the uv version specified in pyproject.toml
           python-version: "3.11" # Use the lowest supported Python version for linting/type-checking
 
       - name: Prepare venv and install Python dependencies
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           GIT_LFS_SKIP_SMUDGE: "1" # Skip downloading LFS files for deps installed via git
         run: just venv
 
       - name: Run linters and type-checkers
-        working-directory: library
+        working-directory: libraries/getitune
         run: just lint
 
   unit-tests:
@@ -121,17 +121,17 @@ jobs:
       - name: Install Python, uv and Just
         uses: ./.github/actions/install-common-deps
         with:
-          uv-version-file: library/pyproject.toml # Install the uv version specified in pyproject.toml
+          uv-version-file: libraries/getitune/pyproject.toml # Install the uv version specified in pyproject.toml
           python-version: ${{ matrix.python-version }}
 
       - name: Installing dependencies
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           GIT_LFS_SKIP_SMUDGE: "1" # Skip downloading LFS files for deps installed via git
         run: just venv
 
       - name: Unit testing
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           OMP_NUM_THREADS: "1"
         run: just test-unit --cov --cov-report=xml --cov-append
@@ -139,7 +139,7 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
         with:
-          directory: library
+          directory: libraries/getitune
           flags: coverage_unit-tests_Python-${{ matrix.python-version }}
           use_oidc: true
 
@@ -177,17 +177,17 @@ jobs:
       - name: Install Python, uv and Just
         uses: ./.github/actions/install-common-deps
         with:
-          uv-version-file: library/pyproject.toml # Install the uv version specified in pyproject.toml
+          uv-version-file: libraries/getitune/pyproject.toml # Install the uv version specified in pyproject.toml
           python-version: ${{ matrix.python-version }}
 
       - name: Installing dependencies
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           GIT_LFS_SKIP_SMUDGE: "1" # Skip downloading LFS files for deps installed via git
         run: just venv --device cuda
 
       - name: Integration testing
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           CUBLAS_WORKSPACE_CONFIG: ":4096:8"
         run: just test-integration \
@@ -200,7 +200,7 @@ jobs:
           --memray
 
   # Real-network test for the benchmark-dataset preparation scripts. Only runs
-  # when files under ``library/scripts/benchmark_datasets/**`` (or the matching
+  # when files under ``libraries/getitune/scripts/benchmark_datasets/**`` (or the matching
   # tests) are modified, since it actually downloads datasets from the internet.
   benchmark-dataset-scripts:
     name: benchmark-dataset-scripts
@@ -229,21 +229,21 @@ jobs:
       - name: Install Python, uv and Just
         uses: ./.github/actions/install-common-deps
         with:
-          uv-version-file: library/pyproject.toml
+          uv-version-file: libraries/getitune/pyproject.toml
           python-version: "3.11"
 
       - name: Installing dependencies
-        working-directory: library
+        working-directory: libraries/getitune
         env:
           GIT_LFS_SKIP_SMUDGE: "1"
         run: just venv-benchmark
 
       - name: Run benchmark dataset script tests
-        working-directory: library
+        working-directory: libraries/getitune
         run: uv run pytest ./tests/unit/scripts -v --run-network
 
   required-check:
-    name: Required Check lib-lint-and-test
+    name: Required Check getitune-lint-and-test
     needs:
       - check-paths
       - code-quality-checks

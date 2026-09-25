@@ -1,17 +1,17 @@
 ---
-applyTo: "library/**"
+applyTo: "libraries/getitune/**"
 ---
 
 ## Conventions
 
-- Source under `library/src/getitune/`.
+- Source under `libraries/getitune/src/getitune/`.
 - Recipes (YAML) define task + model + training config. When adding a model,
   add or update its recipe under the appropriate task directory.
 - Public API entry points must stay stable — consumed by `application/backend/`.
 
 ## Code style
 
-- Use `pyrefly` baseline (`library/pyrefly-baseline.json`) — do not regress.
+- Use `pyrefly` baseline (`libraries/getitune/pyrefly-baseline.json`) — do not regress.
 - Use `logging` (`logging.getLogger(__name__)`).
 - Avoid hard CUDA dependencies. XPU is first-class — guard device-specific
   code with capability checks, not import-time failures.
@@ -29,9 +29,9 @@ applyTo: "library/**"
 
 ## Testing
 
-- Tests in `library/tests/` — organized as `unit/`, `integration/`, `regression/`.
+- Tests in `libraries/getitune/tests/` — organized as `unit/`, `integration/`, `regression/`.
 - Default device for local tests: `cpu`.
-- Do not commit datasets — use existing fixtures under `library/tests/assets/`.
+- Do not commit datasets — use existing fixtures under `libraries/getitune/tests/assets/`.
 
 ## Do not
 

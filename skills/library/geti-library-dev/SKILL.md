@@ -1,16 +1,16 @@
 ---
 name: geti-library-dev
-description: Develop and validate changes in `library/` for the `getitune` Python package. Use when changing library source or tests as well as packaging, recipes and model manifests. This includes Python APIs and CLI behavior across training and export. Covers environment setup; accelerator extras; multi-backend architecture; model and recipe additions; focused checks.
+description: Develop and validate changes in `libraries/getitune/` for the `getitune` Python package. Use when changing library source or tests as well as packaging, recipes and model manifests. This includes Python APIs and CLI behavior across training and export. Covers environment setup; accelerator extras; multi-backend architecture; model and recipe additions; focused checks.
 ---
 
 # Geti Library Development
 
 > For the full architecture reference (package layout, multi-backend design, how
-> to add models, recipes, and manifests) read `library/AGENTS.md`.
+> to add models, recipes, and manifests) read `libraries/getitune/AGENTS.md`.
 
 ## Quick Start
 
-- Work from `library/`.
+- Work from `libraries/getitune/`.
 - Create or refresh the environment with `just venv --device cpu` for routine work.
 - Switch to `just venv --device cuda` or `just venv --device xpu` only when the task needs accelerator-specific behavior.
 - Run `just lint` before wider test runs.
@@ -33,11 +33,11 @@ description: Develop and validate changes in `library/` for the `getitune` Pytho
 - **Adding a model**: implement the model class under
   `src/getitune/backend/lightning/models/<task>/`, inheriting the task base
   class (ultimately `LightningModel`); export it from the task `__init__.py`;
-  add a recipe YAML. See `library/AGENTS.md` for the full walkthrough.
+  add a recipe YAML. See `libraries/getitune/AGENTS.md` for the full walkthrough.
 
 ## Workflow
 
-1. Confirm the change belongs in `library/`. If the task is mainly FastAPI or React work, switch to the matching backend or UI skill.
+1. Confirm the change belongs in `libraries/getitune/`. If the task is mainly FastAPI or React work, switch to the matching backend or UI skill.
 2. Inspect the nearest module and tests before editing. Keep changes inside the existing package boundaries under `src/getitune/`.
 3. Make the smallest change that resolves the task. Avoid lockfile churn unless dependencies changed intentionally.
 4. Run the smallest relevant checks first and widen only if the changed behavior crosses package or task boundaries.
@@ -52,6 +52,6 @@ description: Develop and validate changes in `library/` for the `getitune` Pytho
 
 ## Coordination Notes
 
-- `application/backend` consumes `../../library` as a local editable dependency. If the change affects shared runtime behavior, validate the backend too.
+- `application/backend` consumes `../../libraries/getitune` as a local editable dependency. If the change affects shared runtime behavior, validate the backend too.
 - Update docs or examples when public library behavior changes.
 - Prefer project `just` targets over ad hoc dependency-install commands so the pinned `uv` workflow stays consistent with CI.

@@ -1,6 +1,6 @@
 # Geti Library Agent Guide
 
-Component guide for `library/` — the `getitune` Python package (the Geti training
+Component guide for `libraries/getitune/` — the `getitune` Python package (the Geti training
 library). Read this together with the repo-wide `../AGENTS.md` and the matching
 skill `.agents/skills/geti-library-dev/`.
 
@@ -102,7 +102,7 @@ Both model implementations (`backend/lightning/models/<task>/`) and recipes
 
 ## Model Manifests
 
-- Inside `library/` the model config **is the recipe** — there is no per-model
+- Inside `libraries/getitune/` the model config **is the recipe** — there is no per-model
   manifest file in this package.
 - **Per-model manifests live in the backend, not the library**, but the two are
   tightly connected. `application/backend/app/supported_models/manifests/<task>/<model>.yaml`
@@ -123,8 +123,8 @@ Both model implementations (`backend/lightning/models/<task>/`) and recipes
   the same module). So when you rename or restructure a recipe or its
   hyperparameters here, keep the backend manifest and `GetiConfigConverter`
   mapping in sync or backend training breaks.
-- A **benchmark manifest** (`library/benchmark_manifest.yaml`,
-  `library/benchmark_catalog.yaml`) drives regression/benchmark runs. It is
+- A **benchmark manifest** (`libraries/getitune/benchmark_manifest.yaml`,
+  `libraries/getitune/benchmark_catalog.yaml`) drives regression/benchmark runs. It is
   parsed by `src/getitune/benchmark/manifest.py` into dataclasses
   (`BenchmarkManifest`, `TaskSection`, `ModelEntry`, `Scenario`, `CriteriaConfig`)
   and maps model names to recipe paths, datasets, scenarios, and accuracy criteria.
@@ -143,7 +143,7 @@ Both model implementations (`backend/lightning/models/<task>/`) and recipes
 
 ## Commands
 
-Work from `library/`. See `.github/instructions/library.instructions.md` for the
+Work from `libraries/getitune/`. See `.github/instructions/library.instructions.md` for the
 full table.
 
 | Task                      | Recipe                                 |
@@ -163,8 +163,8 @@ full table.
 - Use stdlib `logging` (`logging.getLogger(__name__)`), not `loguru`.
 - Prefer `lightning.pytorch` over `pytorch_lightning` imports.
 - Modern typing (`list[int]`, `X | None`), `pathlib.Path`, Google-style docstrings.
-- Respect the `pyrefly` baseline (`library/pyrefly-baseline.json`) — do not regress.
+- Respect the `pyrefly` baseline (`libraries/getitune/pyrefly-baseline.json`) — do not regress.
 - Keep the public API stable; `application/backend/` depends on it.
 - Do not import from `application/`.
-- Tests live in `library/tests/` (`unit/`, `integration/`, `regression/`); reuse
-  fixtures under `library/tests/assets/` and do not commit datasets.
+- Tests live in `libraries/getitune/tests/` (`unit/`, `integration/`, `regression/`); reuse
+  fixtures under `libraries/getitune/tests/assets/` and do not commit datasets.

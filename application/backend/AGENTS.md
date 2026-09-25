@@ -162,4 +162,4 @@ for the full table.
   coordination.
 - Never `pip install`; use `uv` via `just` recipes.
 - If you add a new top-level import, verify it appears in `geti.spec` `hiddenimports`.
-- Validate `library/` too when shared model or training behavior changes.
+- Validate `libraries/getitune/` too when shared model or training behavior changes.

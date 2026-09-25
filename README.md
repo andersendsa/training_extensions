@@ -23,7 +23,7 @@
 Available as a Docker container or native Windows application, Geti™ guides you through the entire model lifecycle—from dataset preparation and training to optimization and deployment.
 Geti™ is optimized for fine-tuning and fast inference across the full Intel® XPU portfolio.
 
-The Geti™ application is powered by **_getitune_**, an open-source engine for model training and optimization, which is also available standalone as a Python library. Geti™ and _getitune_ are both developed in this repository, in the [`application`](application/) and [`library`](library/) folders, respectively.
+The Geti™ application is powered by **_getitune_**, an open-source engine for model training and optimization, which is also available standalone as a Python library. Geti™ and _getitune_ are both developed in this repository, in the [`application`](application/) and [`libraries/getitune`](libraries/getitune/) folders, respectively.
 
 <p align="center">
  <img src="assets/model-lifecycle-infinity-light.png" width="600" alt="Geti™ - Learning Cycle"/>

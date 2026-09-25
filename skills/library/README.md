@@ -1,17 +1,17 @@
 # Library agent skills
 
-Skills for `library/` (`getitune`, the Geti training library): models, recipes,
+Skills for `libraries/getitune/` (`getitune`, the Geti training library): models, recipes,
 datasets, training, export, optimization, and inference. Library skills cover
 both the Python API and the `getitune` CLI whenever both surfaces exist.
 
-Run commands from `library/` unless noted otherwise (`just venv`, `just lint`,
+Run commands from `libraries/getitune/` unless noted otherwise (`just venv`, `just lint`,
 `just test-unit`, `getitune ...`).
 
 ## Skills
 
 | Skill                         | Covers                                                                                                                                                            |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `geti-library-dev`            | Develop and validate changes under `library/src`, `library/tests`, recipes, and model manifests; `uv`/`just` setup, cpu/cuda/xpu extras, targeted lint and tests. |
+| `geti-library-dev`            | Develop and validate changes under `libraries/getitune/src`, `libraries/getitune/tests`, recipes, and model manifests; `uv`/`just` setup, cpu/cuda/xpu extras, targeted lint and tests. |
 | `getitune-discovering-models` | `list_models(...)`, `getitune find`, filtering by task/name, resolving the "matches multiple tasks" error.                                                        |
 | `getitune-preparing-datasets` | Supported formats and Datumaro auto-detection, the `data=` / `--data_root` argument, COCO/YOLO/VOC/native layouts, zip archives, YOLO `data.yaml`.                |
 | `getitune-training-a-model`   | `create_engine(...)`, `engine.train()/test()`, `getitune train/test`, device selection, recipe overrides, warm-starting, debugging runs.                          |

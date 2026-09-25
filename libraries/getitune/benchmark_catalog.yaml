@@ -10,7 +10,7 @@
 #
 # Fields:
 #   name        – unique identifier (referenced from benchmark_manifest.yaml)
-#   script      – path to preparation script (relative to library/ root).
+#   script      – path to preparation script (relative to libraries/getitune/ root).
 #                 Mutually exclusive with `local_path` — exactly one must be set.
 #   local_path  – path to an already-prepared dataset directory, used as-is
 #                 with no script execution. Supports ${VAR}/~ expansion so the
