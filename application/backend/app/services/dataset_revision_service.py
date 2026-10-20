@@ -21,6 +21,7 @@ from app.models.dataset_revision import DatasetRevision, DatasetRevisionCounts
 from app.models.media import ImageFormat
 from app.repositories import DatasetRevisionRepository
 from app.repositories.base import PrimaryKeyIntegrityError, UniqueConstraintIntegrityError
+from app.repositories.remote_storage_repo import RemoteStorageRepository
 from app.utils.images import convert_to_jpeg_compatible, crop_to_thumbnail
 
 from .base import BaseSessionManagedService, ResourceNotFoundError, ResourceType
@@ -139,6 +140,8 @@ class DatasetRevisionService(BaseSessionManagedService):
             DatasetRevision: The latest created dataset revision in a project or None if none exists
         """
         dataset_revision_repo = DatasetRevisionRepository(project_id=str(project_id), db=self.db_session)
+        if RemoteStorageRepository(self.db_session).has_mutable_references(str(project_id)):
+            return None
         dataset_revision_db = dataset_revision_repo.get_latest_uptodate_dataset_revision(
             dataset_view_id=str(dataset_view_id) if dataset_view_id is not None else None
         )

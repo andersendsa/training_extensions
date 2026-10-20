@@ -159,6 +159,14 @@ class DatasetViewItemDB(Base):
     media_id: Mapped[str] = mapped_column(Text, ForeignKey("media.id", ondelete="CASCADE"), primary_key=True)
 
 
+class RemoteStorageDB(BaseID):
+    __tablename__ = "remote_storages"
+
+    project_id: Mapped[str] = mapped_column(Text, ForeignKey("projects.id", ondelete="CASCADE"), unique=True)
+    config: Mapped[dict] = mapped_column(JSON, nullable=False)
+    credentials: Mapped[str] = mapped_column(Text, nullable=False)
+
+
 class MediaDB(BaseID):
     __tablename__ = "media"
     __table_args__ = (
@@ -180,6 +188,7 @@ class MediaDB(BaseID):
     frame_index: Mapped[int | None] = mapped_column(Integer, nullable=True, default=None)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
     source_id: Mapped[str | None] = mapped_column(Text, ForeignKey("sources.id", ondelete="SET NULL"), nullable=True)
+    remote: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class LabelDB(BaseID):

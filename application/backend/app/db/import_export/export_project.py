@@ -96,6 +96,7 @@ QUERY_STRATEGY_BY_TABLE = {
     "dataset_revisions": "project_id",
     "dataset_items": "project_id",
     "media": "project_id",
+    "remote_storages": "project_id",
     "labels": "project_id",
     "training_configurations": "project_id",
     "dataset_views": "project_id",

@@ -377,6 +377,14 @@ class MediaService(BaseSessionManagedService):
         media = self.get_media_by_id(project_id=project_id, media_id=media_id)
         return self.get_media_binary_path(project_id=project_id, media=media)
 
+    def read_media_bytes(self, project_id: UUID, media: Media) -> bytes:
+        path = self.get_media_binary_path(project_id, media)
+        if getattr(media, "remote", None) is not None:
+            from app.services.remote_storage_service import RemoteStorageService
+
+            return RemoteStorageService(self.projects_dir.parent, self.db_session).read_image(project_id, media, path)
+        return path.read_bytes()
+
     def get_media_thumbnail_path(self, project: Project, media: MediaDB | Media) -> Path:
         """Get a media thumbnail binary content"""
         return self.get_media_thumbnail_path_by_id(project_id=project.id, media_id=media.id)

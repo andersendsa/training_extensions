@@ -82,6 +82,7 @@ class BaseMedia(BaseEntity):
     height: int
     size: int
     source_id: UUID | None
+    remote: dict | None = None
 
 
 class Image(BaseMedia):

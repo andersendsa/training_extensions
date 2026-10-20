@@ -11,7 +11,7 @@ from importlib.metadata import version as _pkg_version
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     """Application settings with environment variable support"""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
+    remote_storage_encryption_key: SecretStr | None = None
 
     # Application
     app_name: str = "Geti"

@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from contextlib import AbstractContextManager
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from uuid import UUID, uuid4
 
 from datumaro.experimental import Dataset
@@ -58,7 +59,9 @@ class ExportDataset(Execution[ExportDatasetJobParams]):
         self._db_session_factory = db_session_factory
 
     @step("Prepare dataset for export", 20)
-    def prepare_dataset(self, export_params: ExportDatasetJobParams) -> tuple[UUID, Dataset]:
+    def prepare_dataset(
+        self, export_params: ExportDatasetJobParams, remote_media_dir: Path | None = None
+    ) -> tuple[UUID, Dataset]:
         with self._db_session_factory() as session:
             if export_params.dataset_id is None:
                 self._dataset_service.set_db_session(session)
@@ -70,6 +73,7 @@ class ExportDataset(Execution[ExportDatasetJobParams]):
                     task=export_params.task,
                     annotation_status=annotation_status,
                     sample_mode=SampleMode.IMPORT_EXPORT,
+                    remote_media_dir=remote_media_dir,
                     dataset_view_id=export_params.dataset_view_id,
                 )
             else:
@@ -120,9 +124,10 @@ class ExportDataset(Execution[ExportDatasetJobParams]):
         return target_dir
 
     def execute(self, params: ExportDatasetJobParams) -> None:
-        dataset_id, dataset = self.prepare_dataset(params)
-        if len(dataset) == 0:
-            self.pin_message("Dataset is empty after applying filters. Nothing to export.")
-            return
-        self.update_metadata({"dataset_id": dataset_id})
-        self.export_dataset(dataset_id, dataset, params.export_format, params.project_id)
+        with TemporaryDirectory(prefix="geti-remote-export-") as remote_dir:
+            dataset_id, dataset = self.prepare_dataset(params, remote_media_dir=Path(remote_dir))
+            if len(dataset) == 0:
+                self.pin_message("Dataset is empty after applying filters. Nothing to export.")
+                return
+            self.update_metadata({"dataset_id": dataset_id})
+            self.export_dataset(dataset_id, dataset, params.export_format, params.project_id)

@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, Field, TypeAdapter, model_serializer
 
 from app.core.models import BaseRequiredIDNameModel, Pagination
 from app.models import DatasetItemAnnotation, DatasetItemSubset, MediaFormat, MediaType
@@ -20,6 +20,16 @@ class ImageView(BaseRequiredIDNameModel):
     height: int
     size: int
     source_id: UUID | None = None
+    remote: dict | None = Field(
+        default=None, description="Remote object key, access mode, immutability and version metadata"
+    )
+
+    @model_serializer(mode="wrap")
+    def _serialize(self, handler):
+        data = handler(self)
+        if isinstance(data, dict) and data.get("remote") is None:
+            data.pop("remote", None)
+        return data
 
     model_config = {
         "json_schema_extra": {

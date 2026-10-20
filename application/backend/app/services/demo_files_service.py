@@ -280,6 +280,8 @@ class DemoFilesService:
 
         for media in image_media:
             try:
+                if getattr(media, "remote", None) is not None:
+                    return f"image.{media.format}", self._media_service.read_media_bytes(project_id, media)
                 path: Path = self._media_service.get_media_binary_path(project_id=project_id, media=media)
                 if path.exists():
                     extension = media.format.value if isinstance(media, Image) else path.suffix.lstrip(".") or "jpg"

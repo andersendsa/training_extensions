@@ -3,6 +3,7 @@
 
 import os
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 from typing import Annotated, Any, BinaryIO
 from uuid import UUID
@@ -10,6 +11,7 @@ from uuid import UUID
 from anyio import to_thread
 from fastapi import APIRouter, Body, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.openapi.models import Example
+from PIL import Image as PILImage
 from starlette.responses import Response
 
 from app.api.dependencies import (
@@ -67,7 +69,12 @@ from app.services.media_numpy_loader import BinaryNotFoundError
 from app.services.media_prediction_service import VideoRangeError
 from app.services.media_service import ImageMetadata, InvalidImageError, MediaFilters
 from app.services.sam import MediaSegmentService
-from app.utils.images import needs_display_normalization, normalize_image_to_png_bytes
+from app.utils.images import (
+    is_high_bit_depth_image,
+    needs_display_normalization,
+    normalize_high_bit_depth_image,
+    normalize_image_to_png_bytes,
+)
 
 router = APIRouter(prefix="/api/projects/{project_id}/dataset/media", tags=["Media"])
 
@@ -519,6 +526,18 @@ def get_media_binary(
             image=frame_binary, filename=f"{media.video.name}_frame_{media.frame_index}.jpeg"
         )
 
+    if getattr(media, "remote", None) is not None:
+        data = media_service.read_media_bytes(project.id, media)
+        if not raw:
+            with PILImage.open(BytesIO(data)) as image:
+                if is_high_bit_depth_image(image):
+                    buffer = BytesIO()
+                    normalize_high_bit_depth_image(image).save(buffer, format="PNG")
+                    return write_bytes_to_response(
+                        buffer.getvalue(), f"{media.id}.png", media_type="image/png", cache_control="no-store"
+                    )
+        return write_bytes_to_response(data, f"{media.id}.{media.format}", cache_control="no-store")
+
     binary_path = media_service.get_media_binary_path_by_id(project_id=project.id, media_id=media.id)
 
     # Normalize high bit depth images on the fly for display; cheap mode-check first
@@ -568,6 +587,11 @@ def get_media_thumbnail(
 
     project = project_service.get_project_by_id(project_id=project_id)
     media = media_service.get_media_by_id(project_id=project_id, media_id=media_id)
+    if getattr(media, "remote", None) is not None:
+        data = media_service.read_media_bytes(project_id, media)
+        with PILImage.open(BytesIO(data)) as image:
+            thumbnail = media_service._crop_image_to_thumbnail(image)
+            return write_image_to_response(thumbnail, f"{media_id}-thumb.jpeg", cache_control="no-store")
     if media.type != MediaType.VIDEO or frame_index is None:
         raise _not_found()
 

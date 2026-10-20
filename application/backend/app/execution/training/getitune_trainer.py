@@ -8,6 +8,7 @@ from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
@@ -272,7 +273,7 @@ class GetiTuneTrainer(Execution[TrainingJobParams]):
         from getitune.data.dataset.tile import TileDatasetFactory
         from getitune.data.entity.utils import detect_storage_dtype
 
-        with self._db_session_factory() as db:
+        with self._db_session_factory() as db, TemporaryDirectory(prefix="geti-remote-training-") as remote_dir:
             self._dataset_service.set_db_session(db)
             self._dataset_revision_service.set_db_session(db)
 
@@ -313,6 +314,7 @@ class GetiTuneTrainer(Execution[TrainingJobParams]):
                         task=task,
                         annotation_status=DatasetItemAnnotationStatus.WITH_ANNOTATIONS,
                         sample_mode=SampleMode.TRAINING,
+                        remote_media_dir=Path(remote_dir),
                         dataset_view_id=dataset_view_id,
                     )
                     try:
@@ -325,6 +327,11 @@ class GetiTuneTrainer(Execution[TrainingJobParams]):
                     except ValueError as exc:
                         raise ExecutionErr(str(exc)) from exc
                     logger.info("Dataset revision saved with ID: {}", dataset_revision_id)
+                    if any(Path(remote_dir).iterdir()):
+                        # Training reads the persisted snapshot after temporary downloads are removed.
+                        dm_dataset = self._dataset_revision_service.load_revision(
+                            project_id=project_id, dataset_revision_id=dataset_revision_id
+                        )
 
             # Apply filtering based on min/max annotation objects if enabled
             dm_dataset = self.filter_dataset(dm_dataset=dm_dataset, task=task, training_config=training_config)

@@ -28,6 +28,7 @@ from app.db.import_export.common import (
 # Tables are imported in this order to satisfy dependencies
 IMPORT_ORDER = [
     "projects",
+    "remote_storages",
     "labels",
     "training_configurations",
     "media",

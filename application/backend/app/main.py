@@ -48,6 +48,7 @@ from app.api.routers import (
     models,
     pipelines,
     projects,
+    remote_storage,
     sinks,
     source_media,
     sources,
@@ -61,6 +62,7 @@ from app.core.certs import ensure_certs_exist
 from app.core.logging import InterceptHandler, setup_hypercorn_logging
 from app.lifecycle import lifespan
 from app.services.base import ResourceNotFoundError, ResourceWithNameAlreadyExistsError
+from app.services.remote_storage_service import RemoteStorageError
 from app.services.upload_service import TUS_VERSION
 from app.settings import get_settings
 
@@ -81,6 +83,7 @@ def _include_api_routers(app: FastAPI) -> None:
     app.include_router(models.router)
     app.include_router(pipelines.router)
     app.include_router(projects.router)
+    app.include_router(remote_storage.router)
     app.include_router(sinks.router)
     app.include_router(source_media.router)
     app.include_router(sources.router)
@@ -231,6 +234,10 @@ def create_app() -> FastAPI:
 
     app.middleware("http")(_tus_version_middleware)
 
+    @app.exception_handler(RemoteStorageError)
+    async def remote_storage_exception_handler(request: Request, exc: RemoteStorageError) -> JSONResponse:  # noqa: ARG001
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+
     @app.exception_handler(ResourceNotFoundError)
     async def resource_not_found_exception_handler(request: Request, exc: ResourceNotFoundError) -> JSONResponse:  # noqa: ARG001
         """Catch resource not found errors and return 404 response"""
@@ -256,6 +263,14 @@ def create_app() -> FastAPI:
         return JSONResponse(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             content={"detail": str(exc) or "This feature is not implemented yet."},
+        )
+
+    @app.exception_handler(RemoteStorageError)
+    async def remote_storage_exception_handler(request: Request, exc: RemoteStorageError) -> JSONResponse:  # noqa: ARG001
+        """Catch remote storage errors and return 400 response with safe error message"""
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"detail": str(exc)},
         )
 
     _configure_static_routes(app)

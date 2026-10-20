@@ -44,9 +44,13 @@ class MediaNumpyLoader:
         Raises:
             BinaryNotFoundError: If the binary is missing or cannot be decoded.
         """
-        binary_path = self._media_service.get_media_binary_path(project_id=project_id, media=media)
         # IMREAD_UNCHANGED preserves the original bit depth (e.g. 16-bit PNG/TIFF images).
-        binary_data = cv2.imread(str(binary_path), cv2.IMREAD_UNCHANGED)
+        if getattr(media, "remote", None) is not None:
+            data = self._media_service.read_media_bytes(project_id, media)
+            binary_data = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+        else:
+            binary_path = self._media_service.get_media_binary_path(project_id=project_id, media=media)
+            binary_data = cv2.imread(str(binary_path), cv2.IMREAD_UNCHANGED)
         if binary_data is None:
             raise BinaryNotFoundError(f"Media {str(media.id)} binary cannot be found")
         # Add explicit channel dimension for 2D grayscale: (H, W) → (H, W, 1)

@@ -4,6 +4,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 from uuid import UUID
 
 from datumaro.experimental import Dataset
@@ -372,6 +373,7 @@ class DatasetService(BaseSessionManagedService):
         annotation_status: DatasetItemAnnotationStatus | None,
         sample_mode: SampleMode,
         dataset_view_id: UUID | None = None,
+        remote_media_dir: Path | None = None,
     ) -> Dataset:
         from app.datumaro_converter import SampleMode, convert_dataset
 
@@ -396,6 +398,12 @@ class DatasetService(BaseSessionManagedService):
             information is preserved in the sample, while for other media types or training samples, the media binary
             path is sufficient.
             """
+            if getattr(media, "remote", None) is not None:
+                if remote_media_dir is None:
+                    raise ValueError("Remote media requires a job-scoped snapshot directory")
+                path = remote_media_dir / f"{media.id}.{media.format}"
+                path.write_bytes(self._media_service.read_media_bytes(project_id, media))
+                return str(path)
             if isinstance(media, VideoFrame) and sample_mode == SampleMode.IMPORT_EXPORT:
                 return str(
                     self._media_service.get_media_binary_path_by_id(project_id=project_id, media_id=media.video_id)
