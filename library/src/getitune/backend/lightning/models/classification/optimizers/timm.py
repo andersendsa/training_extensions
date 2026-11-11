@@ -13,13 +13,13 @@ if TYPE_CHECKING:
     from torch.optim.optimizer import Optimizer, params_t
 
 
-_TRANSFORMER_PREFIXES = ("vit", "deit", "beit", "swin", "cait", "xcit", "maxvit", "coat", "twins", "pvt")
+TRANSFORMER_PREFIXES = ("vit", "deit", "beit", "swin", "cait", "xcit", "maxvit", "coat", "twins", "pvt")
 
 
 def _is_transformer_family(model_name: str) -> bool:
     """Check whether a timm model name belongs to a transformer-like family."""
     family = model_name.split("_")[0].split(".")[0].lower()
-    return family.startswith(_TRANSFORMER_PREFIXES)
+    return family.startswith(TRANSFORMER_PREFIXES)
 
 
 class TimmOptimizer:

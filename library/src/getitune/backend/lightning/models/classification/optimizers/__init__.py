@@ -3,6 +3,6 @@
 
 """Classification model optimizers."""
 
-from .timm import TimmOptimizer
+from .timm import TRANSFORMER_PREFIXES, TimmOptimizer
 
-__all__ = ["TimmOptimizer"]
+__all__ = ["TRANSFORMER_PREFIXES", "TimmOptimizer"]

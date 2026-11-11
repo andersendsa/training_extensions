@@ -42,15 +42,14 @@ from importlib.metadata import version as pkg_version
 from pathlib import Path
 from typing import Any
 
+from getitune.backend.lightning.models.classification.optimizers import TRANSFORMER_PREFIXES
+
 logger = logging.getLogger(__name__)
 
 _ALLOWED_CODE_LICENSES = frozenset({"Apache-2.0", "BSD-3-Clause", "MIT"})
 _REFUSED_WEIGHTS_LICENSES = frozenset({"not specified", "unknown"})
 _UNKNOWN_LICENSE = "unknown"
-# Architecture prefixes that should use AdamW at train time (matches the
-# optimizer selection in TimmModelMulticlassCls / TimmModelMultilabelCls).
-# TODO(https://github.com/open-edge-platform/geti/issues/7097): import constants from library (single source of truth)
-_ADAMW_PREFIXES = ("vit", "deit", "beit", "swin", "cait", "xcit", "maxvit", "coat", "twins", "pvt")
+_ADAMW_PREFIXES = TRANSFORMER_PREFIXES
 _ADAMW_DEFAULTS = {
     "learning_rate": 1e-4,
     "weight_decay": 5e-2,
