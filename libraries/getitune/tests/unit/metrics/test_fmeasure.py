@@ -69,3 +69,18 @@ class TestFMeasure:
         metric.update(fxt_preds, fxt_targets)
         result = metric.compute(best_confidence_threshold=0.85)
         assert result["f1-score"] == 0.3333333432674408
+
+    def test_reset_clears_current_evaluation_results(self, fxt_preds, fxt_targets) -> None:
+        metric = FMeasure(label_info=LabelInfo.from_num_classes(1))
+        metric.update(fxt_preds, fxt_targets)
+        metric.compute()
+        assert metric.f_measure_per_label
+        assert metric.f_measure_per_confidence is not None
+
+        metric.reset()
+        assert metric.f_measure_per_label == {}
+        assert metric.f_measure_per_confidence is None
+        with pytest.raises(RuntimeError, match="current_confidence_threshold"):
+            _ = metric.current_confidence_threshold
+        with pytest.warns(UserWarning, match="called before the ``update`` method"):
+            assert metric.compute()["f1-score"] == 0.0

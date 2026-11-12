@@ -661,10 +661,8 @@ class FMeasure(Metric):
         self.cross_class_nms = cross_class_nms
         self.label_info: LabelInfo = label_info
 
-        self._f_measure_per_confidence: dict | None = None
         self._f_measure_per_nms: dict | None = None
         self._best_confidence_threshold: float | None = None
-        self._current_confidence_threshold: float | None = None
         self._best_nms_threshold: float | None = None
         self._f_measure = float("-inf")
 
@@ -675,12 +673,11 @@ class FMeasure(Metric):
         self.reset()
 
     def reset(self) -> None:
-        """Reset for every validation and test epoch.
-
-        Please be careful that some variables should not be reset for each epoch.
-        """
+        """Clear inputs and per-evaluation results while retaining the best results across epochs."""
         super().reset()
-        self._current_confidence_threshold = None
+        self._f_measure_per_label: dict[str, float] = {}
+        self._f_measure_per_confidence: dict | None = None
+        self._current_confidence_threshold: float | None = None
 
     def update(self, preds: list[dict[str, Tensor]], target: list[dict[str, Tensor]]) -> None:
         """Keep per-image tensor states for device-native distributed gathering."""
@@ -753,19 +750,9 @@ class FMeasure(Metric):
             computed_f_measure = result.best_f_measure
             best_confidence_threshold = result.per_confidence.best_threshold
 
-        # Keep threshold selected for this validation pass separate from the
-        # historical threshold that produced the best F1 across passes. A
-        # checkpoint may be selected by mAP while F1 peaked in another epoch;
-        # saving the current value keeps checkpoint weights and threshold
-        # aligned.
+        # Checkpoint selection can use mAP, so callers need this evaluation's threshold.
         self._current_confidence_threshold = float(best_confidence_threshold)
 
-        # TODO(jaegukhyun): There was no reset() function in this metric
-        # There are some variables dependent on the best F1 metric, e.g., best_confidence_threshold
-        # Now we added reset() function and revise some mechanism about it. However,
-        # It is still unsure that it is correctly working with the implemented reset function.
-        # Need to revisit. See other metric implement and this to learn how they work
-        # https://github.com/Lightning-AI/torchmetrics/blob/v1.2.1/src/torchmetrics/metric.py
         if self._f_measure < computed_f_measure:
             self._f_measure = result.best_f_measure
             self._best_confidence_threshold = best_confidence_threshold
@@ -781,7 +768,7 @@ class FMeasure(Metric):
 
     @property
     def f_measure(self) -> float:
-        """Returns the f-measure."""
+        """Return the best recorded F1, or negative infinity before computation."""
         return self._f_measure
 
     @property
