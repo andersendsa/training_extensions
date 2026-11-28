@@ -20,6 +20,10 @@ on:
 
 permissions: {} # No permissions by default
 
+concurrency:
+  group: ${{ inputs.dry_run && github.run_id || 'app-rc-promotion' }}
+  cancel-in-progress: false
+
 jobs:
   validate:
     name: Validate inputs and release tag
